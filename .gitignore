@@ -1,0 +1,12 @@
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+
+
+# tooling artifacts
+.playwright-mcp/
+client-test.html

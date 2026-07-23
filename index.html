@@ -1,0 +1,2964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Supplier Scoring Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white-color: #ffffff;
+            --border-radius: 6px;
+            --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            color: var(--white-color);
+            text-align: center;
+            background: linear-gradient(45deg, var(--primary-color), #6f42c1);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            font-size: 2rem;
+        }
+
+        .section {
+            background: var(--white-color);
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .section:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #444;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .parameter-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+            transition: var(--transition);
+        }
+
+        .parameter-item:hover {
+            background: #f0f0f0;
+            border-color: #ced4da;
+        }
+
+        .parameter-item label {
+            min-width: 180px;
+            font-weight: bold;
+        }
+
+        input, select, button {
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+        }
+
+        .parameter-item input[type="text"] {
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .parameter-item input[type="number"] {
+            width: 120px;
+        }
+
+        .parameter-item select {
+            width: 180px;
+        }
+
+        input[readonly] {
+            background-color: #f1f1f1;
+            cursor: not-allowed;
+            color: #666;
+        }
+
+        .bg-gray-100 {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .btn-disabled:hover {
+            background-color: var(--secondary-color);
+            transform: none;
+        }
+
+        .rank-1 { 
+            color: var(--success-color); 
+            font-weight: bold; 
+            font-size: 18px; 
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        
+        .rank-2 { 
+            color: var(--warning-color); 
+            font-weight: bold; 
+            font-size: 16px; 
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+        
+        .rank-3 { 
+            color: var(--info-color); 
+            font-weight: bold; 
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+            margin: 15px;
+            min-width: 150px;
+            flex: 1;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            text-align: left;
+            min-width: 120px;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr {
+            transition: var(--transition);
+        }
+
+        tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        .cell-good {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .cell-bad {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+            margin: 0 -5px 20px;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .control-buttons {
+            text-align: center;
+            margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .new-param-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 30px 0;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            background-color: white;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .flex-col {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .import-export {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--info-color);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-label:hover {
+            background: #138496;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .toast.success {
+            background: rgba(40, 167, 69, 0.9);
+        }
+
+        .toast.error {
+            background: rgba(220, 53, 69, 0.9);
+        }
+
+        .toast.warning {
+            background: rgba(255, 193, 7, 0.9);
+            color: #343a40;
+        }
+
+        .toast.info {
+            background: rgba(23, 162, 184, 0.9);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+
+        .validation-error {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .note-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-group-text {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            margin-bottom: 0;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            text-align: center;
+            white-space: nowrap;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 0 0.25rem 0.25rem 0;
+            border-left: none;
+        }
+
+        .input-group input {
+            border-radius: 0.25rem 0 0 0.25rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .parameter-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+            }
+
+            .parameter-item label {
+                margin-bottom: 10px;
+            }
+
+            .parameter-item input[type="text"],
+            .parameter-item input[type="number"],
+            .parameter-item select {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .stats-row {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            th, td {
+                padding: 10px;
+                min-width: 80px;
+            }
+        }
+
+        /* Additional styles for planning tables */
+        .planning-table th {
+            background-color: var(--info-color);
+            font-size: 12px;
+            padding: 10px 8px;
+        }
+
+        .planning-table td {
+            font-size: 13px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .month-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            min-width: 60px !important;
+            width: 60px !important;
+        }
+
+        .supplier-name-col {
+            min-width: 200px !important;
+            width: 200px !important;
+            text-align: left !important;
+            position: sticky;
+            left: 0;
+            background-color: white;
+            z-index: 5;
+        }
+
+        .total-col {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            border-left: 2px solid var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Dynamic Supplier Scoring Dashboard</h1>
+    
+    <div class="section">
+        <h2>⚙️ Parameter Management</h2>
+        
+        <div class="control-buttons">
+            <button class="btn btn-success" onclick="showAddParameterModal()">➕ Add Parameter</button>
+            <button class="btn btn-warning" onclick="normalizeWeights()">⚖️ Normalize Weights to 1.0</button>
+            <button class="btn" onclick="resetToDefault()">🔄 Reset to Default</button>
+            <button id="saveConfigBtn" class="btn btn-info" onclick="saveConfigToSupabase()">💾 Save Configuration</button>
+            <button id="loadConfigBtn" class="btn btn-info" onclick="loadConfigFromSupabase()">📂 Load Configuration</button>
+        </div>
+
+        <div id="parametersContainer">
+            <!-- Dynamic parameters will be added here -->
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📅 Annual Procurement Planning</h2>
+        
+        <div class="import-export">
+            <h3 style="margin-bottom: 15px;">📊 Planning Parameters</h3>
+            <div class="control-buttons">
+                <button class="btn btn-success" onclick="calculateAnnualPlan()">🎯 Generate Annual Plan</button>
+                <button class="btn btn-info" onclick="exportAnnualPlan()">📤 Export Annual Plan</button>
+                <button class="btn btn-warning" onclick="resetPlanningData()">🔄 Reset Planning Data</button>
+                <button class="btn btn-outline" onclick="updatePlanningInputTable()">🔄 Refresh Input Table</button>
+            </div>
+            <p class="help-text">Set yearly targets and seasonality factors for each product to generate a comprehensive monthly procurement plan. Enter seasonality as 12 comma-separated percentages (Jan-Dec).</p>
+        </div>
+
+        <!-- Annual Planning Inputs Table -->
+        <div class="table-container">
+            <table id="planningInputTable">
+                <thead id="planningInputHeader">
+                    <tr>
+                        <th title="Product name">Product</th>
+                        <th title="Total quantity needed for the entire year">Yearly Target (Units)</th>
+                        <th title="Current inventory on hand">Current Stock (Units)</th>
+                        <th title="Minimum safety stock to maintain">Safety Stock (Units)</th>
+                        <th title="Monthly seasonality factors (Jan-Dec) - Enter 12 comma-separated percentages">Seasonality Factors (%)<br><small>Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec</small></th>
+                    </tr>
+                </thead>
+                <tbody id="planningInputBody">
+                    <!-- Planning inputs will be displayed here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Monthly Procurement Calendar -->
+        <div id="monthlyPlanSection" style="display: none;">
+            <h3 style="margin-top: 30px; color: #007bff;">📅 Monthly Procurement Calendar</h3>
+            <div class="table-container">
+                <table id="monthlyPlanTable" class="planning-table">
+                    <thead id="monthlyPlanHeader">
+                        <!-- Dynamic headers will be added here -->
+                    </thead>
+                    <tbody id="monthlyPlanBody">
+                        <!-- Monthly plan will be displayed here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Annual Summary -->
+        <div id="annualSummarySection" style="display: none;">
+            <h3 style="margin-top: 30px; color: #007bff;">📈 Annual Procurement Summary</h3>
+            <div class="stats-row" id="annualStatsContainer">
+                <!-- Annual statistics will be added here -->
+            </div>
+            
+            <!-- Supplier Annual Allocation -->
+            <div class="table-container">
+                <table id="supplierAllocationTable">
+                    <thead>
+                        <th title="Supplier ranking">Rank</th>
+                        <th title="Supplier name">Supplier</th>
+                        <th title="Percentage of total annual volume">Volume Allocation (%)</th>
+                        <th title="Total units allocated per year">Annual Units</th>
+                        <th title="Total annual spending">Annual Spend ($)</th>
+                        <th title="Average monthly orders">Avg Monthly Orders</th>
+                    </thead>
+                    <tbody id="supplierAllocationBody">
+                        <!-- Supplier allocation will be displayed here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Data Import/Export</h2>
+        
+        <div class="import-export">
+            <div class="control-buttons">
+                <button class="btn btn-info" onclick="exportToJSON()">📤 Export Suppliers to JSON</button>
+                <input type="file" id="importFile" class="file-input" accept=".json" onchange="importFromJSON(event)">
+                <label for="importFile" class="file-label">📥 Import Suppliers from JSON</label>
+                <button class="btn btn-success" onclick="exportToCSV()">📊 Export Results to CSV</button>
+            </div>
+            <p class="help-text">Export your supplier data to share or backup. Import previously exported configurations.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📝 Supplier Input Dashboard</h2>
+        <div class="control-buttons">
+            <button class="btn btn-success" onclick="addSupplier()">➕ Add New Supplier</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="inputTable">
+                <thead id="inputHeader">
+                    <!-- Dynamic headers will be added here -->
+                </thead>
+                <tbody id="inputBody">
+                    <!-- Supplier rows will be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🏆 Scoring Results</h2>
+        <div class="stats-row" id="statsContainer">
+            <!-- Statistics will be added here -->
+        </div>
+        
+        <!-- Supplier Summary Section (New) -->
+        <div class="section" style="background: #f0f8ff; border: 2px solid #007bff;">
+            <h3 style="color: #007bff; margin-bottom: 20px;">📊 Overall Supplier Rankings (Weighted by Product Value)</h3>
+            <div class="table-container">
+                <table id="supplierSummaryTable">
+                    <thead id="supplierSummaryHeader">
+                        <th title="Overall supplier ranking based on weighted average of all products">Overall Rank</th>
+                        <th title="Supplier name">Supplier</th>
+                        <th title="Number of products from this supplier">Products Count</th>
+                        <th title="Total weighted value of all products">Total Portfolio Value</th>
+                        <th title="Weighted average score across all products">Overall Score</th>
+                        <th title="Individual product scores that make up the overall score">Product Breakdown</th>
+                    </thead>
+                    <tbody id="supplierSummaryBody">
+                        <!-- Supplier summary will be displayed here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Individual Product Results -->
+        <h3 style="margin-top: 30px; color: #666;">📋 Individual Product Details</h3>
+        
+        <div class="flex-row">
+            <div class="flex-col">
+                <div class="chart-container" id="radarChartContainer">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            <div class="flex-col">
+                <div class="chart-container" id="barChartContainer">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="resultsTable">
+                <thead id="resultsHeader">
+                    <!-- Dynamic headers will be added here -->
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results will be displayed here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Add Parameter Modal -->
+    <div id="addParameterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Parameter</h2>
+                <span class="modal-close" onclick="hideAddParameterModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 15px;">
+                    <label for="newParamName">Parameter Name:</label>
+                    <input type="text" id="newParamName" placeholder="Parameter name (e.g., Quality)" maxlength="20" style="width: 100%; margin-top: 5px;">
+                    <div id="paramNameError" class="validation-error">Please enter a valid parameter name</div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="newParamWeight">Weight (0-1):</label>
+                    <input type="number" id="newParamWeight" placeholder="Weight" value="0.1" min="0" max="1" step="0.01" style="width: 100%; margin-top: 5px;">
+                    <div id="paramWeightError" class="validation-error">Weight must be between 0 and 1</div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="newParamType">Parameter Type:</label>
+                    <select id="newParamType" style="width: 100%; margin-top: 5px;">
+                        <option value="higher">Higher is Better</option>
+                        <option value="lower">Lower is Better</option>
+                    </select>
+                </div>
+                
+                <p class="help-text">Parameters with higher weights have more influence on the final score. "Higher is Better" means higher values will receive better scores, while "Lower is Better" means lower values will receive better scores.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideAddParameterModal()">Cancel</button>
+                <button class="btn btn-success" onclick="addParameter()">Add Parameter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Chart.js for visualizations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Import Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ---- Supabase setup ----
+        const SUPABASE_URL = 'https://sthwsnwnkyodpvipkduo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0aHdzbndua3lvZHB2aXBrZHVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NDQ2MzAsImV4cCI6MjEwMDEyMDYzMH0.hZ3NuTtTKeOU0OZeZ13CyfbjRCUuhgXBeEM4eVyMSgs';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Runs a Supabase call, surfaces failures as a toast + console error instead of failing silently
+        async function sbCall(promiseFactory, errorLabel) {
+            try {
+                const { data, error } = await promiseFactory();
+                if (error) throw error;
+                return data;
+            } catch (err) {
+                console.error(errorLabel, err);
+                showToast(`${errorLabel}: ${err.message || err}`, 'error');
+                throw err;
+            }
+        }
+
+        // Parameter ids backed by dedicated supplier columns; every other parameter id
+        // (custom, user-added) is stored in the suppliers.custom_values JSONB column.
+        const FIXED_PARAM_IDS = new Set(['price', 'totalLeadTime', 'payment', 'stock', 'reliability']);
+
+        // JS-side keys on a supplier object that always map to a real DB column
+        const FIXED_SUPPLIER_KEYS = new Set([
+            'id', 'name', 'productDescription', 'basePrice', 'customDutyPercent', 'customDuty',
+            'additionalCost', 'price', 'manufacturingLeadTime', 'shippingLeadTime',
+            'customClearanceLeadTime', 'totalLeadTime', 'dailyConsumption', 'stock', 'payment',
+            'reliability', 'yearlyTarget', 'currentStockUnits', 'safetyStock', 'seasonality'
+        ]);
+
+        function extractCustomValues(supplier) {
+            const custom = {};
+            Object.keys(supplier).forEach(key => {
+                if (!FIXED_SUPPLIER_KEYS.has(key)) custom[key] = supplier[key];
+            });
+            return custom;
+        }
+
+        function supplierToRow(supplier) {
+            return {
+                name: supplier.name,
+                product_description: supplier.productDescription,
+                base_price: supplier.basePrice || 0,
+                custom_duty_percent: supplier.customDutyPercent || 0,
+                custom_duty: supplier.customDuty || 0,
+                additional_cost: supplier.additionalCost || 0,
+                price: supplier.price || 0,
+                manufacturing_lead_time: supplier.manufacturingLeadTime || 0,
+                shipping_lead_time: supplier.shippingLeadTime || 0,
+                custom_clearance_lead_time: supplier.customClearanceLeadTime || 0,
+                total_lead_time: supplier.totalLeadTime || 0,
+                daily_consumption: supplier.dailyConsumption || DEFAULT_DAILY_CONSUMPTION,
+                stock: supplier.stock || 0,
+                payment: supplier.payment || 0,
+                reliability: supplier.reliability || 0,
+                yearly_target: supplier.yearlyTarget || DEFAULT_YEARLY_TARGET,
+                current_stock_units: supplier.currentStockUnits || DEFAULT_CURRENT_STOCK_UNITS,
+                safety_stock: supplier.safetyStock || DEFAULT_SAFETY_STOCK,
+                seasonality: supplier.seasonality || [...DEFAULT_SEASONALITY],
+                custom_values: extractCustomValues(supplier)
+            };
+        }
+
+        function rowToSupplier(row) {
+            return {
+                id: row.id,
+                name: row.name,
+                productDescription: row.product_description || '',
+                basePrice: Number(row.base_price) || 0,
+                customDutyPercent: Number(row.custom_duty_percent) || 0,
+                customDuty: Number(row.custom_duty) || 0,
+                additionalCost: Number(row.additional_cost) || 0,
+                price: Number(row.price) || 0,
+                manufacturingLeadTime: Number(row.manufacturing_lead_time) || 0,
+                shippingLeadTime: Number(row.shipping_lead_time) || 0,
+                customClearanceLeadTime: Number(row.custom_clearance_lead_time) || 0,
+                totalLeadTime: Number(row.total_lead_time) || 0,
+                dailyConsumption: Number(row.daily_consumption) || DEFAULT_DAILY_CONSUMPTION,
+                stock: Number(row.stock) || 0,
+                payment: Number(row.payment) || 0,
+                reliability: Number(row.reliability) || 0,
+                yearlyTarget: Number(row.yearly_target) || DEFAULT_YEARLY_TARGET,
+                currentStockUnits: Number(row.current_stock_units) || DEFAULT_CURRENT_STOCK_UNITS,
+                safetyStock: Number(row.safety_stock) || DEFAULT_SAFETY_STOCK,
+                seasonality: row.seasonality || [...DEFAULT_SEASONALITY],
+                ...(row.custom_values || {})
+            };
+        }
+
+        function parameterToRow(param, sortOrder) {
+            return { id: param.id, name: param.name, weight: param.weight, type: param.type, sort_order: sortOrder };
+        }
+
+        function rowToParameter(row) {
+            return { id: row.id, name: row.name, weight: Number(row.weight), type: row.type };
+        }
+
+        // Persists one supplier's full current state back to Supabase
+        async function persistSupplier(supplier) {
+            await sbCall(
+                () => sb.from('suppliers').update(supplierToRow(supplier)).eq('id', supplier.id),
+                `Failed to save changes for "${supplier.name}"`
+            );
+        }
+
+        // Fetches parameters + suppliers from Supabase into the in-memory arrays
+        async function loadDataFromSupabase() {
+            const paramRows = await sbCall(
+                () => sb.from('parameters').select('*').order('sort_order', { ascending: true }),
+                'Failed to load parameters'
+            );
+            const supplierRows = await sbCall(
+                () => sb.from('suppliers').select('*').order('id', { ascending: true }),
+                'Failed to load suppliers'
+            );
+            parameters = (paramRows || []).map(rowToParameter);
+            suppliers = (supplierRows || []).map(rowToSupplier);
+        }
+
+        let radarChart, barChart;
+
+        // In-memory cache of parameters/suppliers, kept in sync with Supabase
+        let parameters = [];
+
+        // Default custom duty percentage
+        const DEFAULT_DUTY_PERCENTAGE = 5;
+        const DEFAULT_DAILY_CONSUMPTION = 50; // Default daily consumption rate
+
+        // Default values for annual planning
+        const DEFAULT_YEARLY_TARGET = 12000;
+        const DEFAULT_CURRENT_STOCK_UNITS = 1000;
+        const DEFAULT_SAFETY_STOCK = 500;
+        // Default seasonality: slightly higher in Q4 (holiday season) and Q1 (new year planning)
+        const DEFAULT_SEASONALITY = [110, 95, 90, 85, 80, 75, 80, 85, 95, 105, 120, 130]; // Jan-Dec percentages
+
+        // Supplier data is loaded from Supabase at runtime (see loadDataFromSupabase)
+        let suppliers = [];
+
+        // Annual planning variables
+        let monthlyPlan = [];
+        let annualSummary = {};
+
+        // Month names for display
+        const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Update planning input table
+        function updatePlanningInputTable() {
+            const body = document.getElementById('planningInputBody');
+            if (!body) {
+                console.error('Planning input table body not found');
+                return;
+            }
+            
+            console.log('Updating planning input table with', suppliers.length, 'suppliers');
+            body.innerHTML = '';
+            
+            suppliers.forEach(supplier => {
+                const row = document.createElement('tr');
+                
+                // Ensure all planning fields have default values
+                if (!supplier.yearlyTarget) supplier.yearlyTarget = DEFAULT_YEARLY_TARGET;
+                if (!supplier.currentStockUnits) supplier.currentStockUnits = DEFAULT_CURRENT_STOCK_UNITS;
+                if (!supplier.safetyStock) supplier.safetyStock = DEFAULT_SAFETY_STOCK;
+                if (!supplier.seasonality) supplier.seasonality = [...DEFAULT_SEASONALITY];
+                
+                // Create seasonality input as a single field with comma-separated values
+                const seasonalityString = supplier.seasonality.join(', ');
+                
+                let rowHTML = `<td><strong>${supplier.name}</strong><br><small>${supplier.productDescription || 'No description'}</small></td>`;
+                rowHTML += `<td><input type="number" value="${supplier.yearlyTarget}" min="0" step="100"
+                               style="width: 120px;"
+                               onchange="updatePlanningData(${supplier.id}, 'yearlyTarget', this.value)"
+                               title="Total units needed for the entire year"></td>`;
+                rowHTML += `<td><input type="number" value="${supplier.currentStockUnits}" min="0" step="10"
+                               style="width: 120px;"
+                               onchange="updatePlanningData(${supplier.id}, 'currentStockUnits', this.value)"
+                               title="Current inventory on hand"></td>`;
+                rowHTML += `<td><input type="number" value="${supplier.safetyStock}" min="0" step="10"
+                               style="width: 120px;"
+                               onchange="updatePlanningData(${supplier.id}, 'safetyStock', this.value)"
+                               title="Minimum safety stock to maintain"></td>`;
+                rowHTML += `<td><input type="text" value="${seasonalityString}" style="min-width: 400px; font-family: monospace;"
+                               placeholder="110, 95, 90, 85, 80, 75, 80, 85, 95, 105, 120, 130"
+                               onchange="updateSeasonality(${supplier.id}, this.value)"
+                               title="Enter 12 monthly seasonality percentages separated by commas (Jan-Dec). Example: 110,95,90,85,80,75,80,85,95,105,120,130"></td>`;
+                
+                row.innerHTML = rowHTML;
+                body.appendChild(row);
+            });
+            
+            console.log('Planning input table updated successfully');
+        }
+
+        // Update planning data
+        async function updatePlanningData(id, field, value) {
+            const supplier = suppliers.find(s => s.id === id);
+            if (supplier) {
+                const numValue = parseFloat(value) || 0;
+                supplier[field] = numValue;
+                console.log(`Updated ${field} for supplier ${supplier.name} to ${numValue}`);
+
+                try {
+                    await persistSupplier(supplier);
+                    showToast(`Updated ${field}: ${numValue} for ${supplier.name}`, 'success');
+                } catch (err) { /* toasted already */ }
+
+                // Clear any existing annual plan when inputs change
+                if (monthlyPlan.length > 0) {
+                    monthlyPlan = [];
+                    document.getElementById('monthlyPlanSection').style.display = 'none';
+                    document.getElementById('annualSummarySection').style.display = 'none';
+                    showToast('Planning inputs changed. Please regenerate the annual plan.', 'info');
+                }
+            }
+        }
+
+        // Update seasonality data
+        async function updateSeasonality(id, value) {
+            const supplier = suppliers.find(s => s.id === id);
+            if (supplier) {
+                try {
+                    // Clean up the input and split by comma
+                    const cleanValue = value.replace(/\s+/g, ' ').trim();
+                    const seasonalityArray = cleanValue.split(',').map(v => {
+                        const num = parseFloat(v.trim());
+                        return isNaN(num) ? 0 : num;
+                    }).filter(v => v !== 0);
+
+                    if (seasonalityArray.length === 12) {
+                        supplier.seasonality = seasonalityArray;
+                        console.log(`Updated seasonality for supplier ${supplier.name}:`, seasonalityArray);
+
+                        try {
+                            await persistSupplier(supplier);
+                            showToast(`Updated seasonality for ${supplier.name}`, 'success');
+                        } catch (err) { /* toasted already */ }
+
+                        // Clear any existing annual plan when inputs change
+                        if (monthlyPlan.length > 0) {
+                            monthlyPlan = [];
+                            document.getElementById('monthlyPlanSection').style.display = 'none';
+                            document.getElementById('annualSummarySection').style.display = 'none';
+                            showToast('Seasonality changed. Please regenerate the annual plan.', 'info');
+                        }
+                    } else {
+                        showToast(`Please enter exactly 12 seasonality values (found ${seasonalityArray.length}). Example: 110,95,90,85,80,75,80,85,95,105,120,130`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error parsing seasonality:', error);
+                    showToast('Invalid seasonality format. Use comma-separated numbers like: 110,95,90,85,80,75,80,85,95,105,120,130', 'error');
+                }
+            }
+        }
+
+        // Calculate monthly demand for a product
+        function calculateMonthlyDemand(supplier) {
+            const yearlyTarget = supplier.yearlyTarget || DEFAULT_YEARLY_TARGET;
+            const seasonality = supplier.seasonality || DEFAULT_SEASONALITY;
+            const baseMonthlyDemand = yearlyTarget / 12;
+            
+            return seasonality.map(factor => Math.round(baseMonthlyDemand * factor / 100));
+        }
+
+        // Calculate order quantities and timing
+        function calculateMonthlyOrders(supplier, monthlyDemand) {
+            const leadTimeMonths = Math.ceil((supplier.totalLeadTime || 0) / 30); // Convert days to months
+            const safetyStock = supplier.safetyStock || DEFAULT_SAFETY_STOCK;
+            const currentStock = supplier.currentStockUnits || DEFAULT_CURRENT_STOCK_UNITS;
+            
+            let runningInventory = currentStock;
+            const monthlyOrders = [];
+            
+            for (let month = 0; month < 12; month++) {
+                const demand = monthlyDemand[month];
+                const orderMonth = Math.max(0, month - leadTimeMonths);
+                
+                // Calculate required order quantity
+                const projectedInventory = runningInventory - demand;
+                const orderQuantity = Math.max(0, demand + safetyStock - runningInventory);
+                
+                monthlyOrders.push({
+                    month: month,
+                    monthName: MONTH_NAMES[month],
+                    demand: demand,
+                    orderQuantity: orderQuantity,
+                    orderMonth: orderMonth,
+                    orderMonthName: MONTH_NAMES[orderMonth],
+                    projectedInventory: Math.max(0, projectedInventory + orderQuantity),
+                    unitPrice: (supplier.basePrice || 0) + (supplier.customDuty || 0) + (supplier.additionalCost || 0),
+                    totalCost: orderQuantity * ((supplier.basePrice || 0) + (supplier.customDuty || 0) + (supplier.additionalCost || 0))
+                });
+                
+                runningInventory = Math.max(0, projectedInventory + orderQuantity);
+            }
+            
+            return monthlyOrders;
+        }
+
+        // FIXED: Generate complete annual plan
+        function calculateAnnualPlan() {
+            try {
+                console.log('Starting annual plan calculation...');
+                monthlyPlan = [];
+                
+                // Get supplier rankings
+                const normalizedSuppliers = calculateNormalizedValues(suppliers);
+                const productResults = calculateWeightedScores(normalizedSuppliers);
+                const supplierResults = calculateSupplierAggregates(productResults);
+                
+                suppliers.forEach(supplier => {
+                    const monthlyDemand = calculateMonthlyDemand(supplier);
+                    const monthlyOrders = calculateMonthlyOrders(supplier, monthlyDemand);
+                    
+                    monthlyPlan.push({
+                        supplier: supplier,
+                        monthlyDemand: monthlyDemand,
+                        monthlyOrders: monthlyOrders,
+                        totalAnnualDemand: monthlyDemand.reduce((sum, d) => sum + d, 0),
+                        totalAnnualCost: monthlyOrders.reduce((sum, o) => sum + o.totalCost, 0),
+                        supplierRank: productResults.find(p => p.id === supplier.id)?.rank || 0,
+                        supplierScore: productResults.find(p => p.id === supplier.id)?.weightedScore || 0
+                    });
+                });
+                
+                console.log('Monthly plan generated:', monthlyPlan);
+                
+                // Calculate supplier allocation based on rankings and volumes
+                calculateSupplierAllocation(supplierResults);
+                
+                // Update displays
+                updateMonthlyPlanDisplay();
+                updateAnnualSummaryDisplay();
+                
+                // Show the planning sections
+                document.getElementById('monthlyPlanSection').style.display = 'block';
+                document.getElementById('annualSummarySection').style.display = 'block';
+                
+                showToast('Annual procurement plan generated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error calculating annual plan:', error);
+                showToast('Error generating annual plan: ' + error.message, 'error');
+            }
+        }
+
+        // FIXED: Update monthly plan display function (was missing)
+        function updateMonthlyPlanDisplay() {
+            console.log('Updating monthly plan display...');
+            const header = document.getElementById('monthlyPlanHeader');
+            const body = document.getElementById('monthlyPlanBody');
+            
+            if (!header || !body) {
+                console.error('Monthly plan table elements not found');
+                return;
+            }
+            
+            // Create header
+            let headerHTML = '<tr>';
+            headerHTML += '<th class="supplier-name-col">Supplier</th>';
+            headerHTML += '<th>Metric</th>';
+            MONTH_NAMES.forEach(month => {
+                headerHTML += `<th class="month-header">${month}</th>`;
+            });
+            headerHTML += '<th class="total-col">Total</th>';
+            headerHTML += '</tr>';
+            header.innerHTML = headerHTML;
+            
+            // Create body with demand and order data
+            body.innerHTML = '';
+            
+            monthlyPlan.forEach(plan => {
+                // Demand row
+                const demandRow = document.createElement('tr');
+                let demandHTML = `<td class="supplier-name-col"><strong>${plan.supplier.name}</strong></td>`;
+                demandHTML += '<td><strong>Demand</strong></td>';
+                plan.monthlyDemand.forEach(demand => {
+                    demandHTML += `<td>${demand.toLocaleString()}</td>`;
+                });
+                demandHTML += `<td class="total-col">${plan.totalAnnualDemand.toLocaleString()}</td>`;
+                demandRow.innerHTML = demandHTML;
+                body.appendChild(demandRow);
+                
+                // Order quantity row
+                const orderRow = document.createElement('tr');
+                let orderHTML = '<td class="supplier-name-col"></td>';
+                orderHTML += '<td><em>Order Qty</em></td>';
+                plan.monthlyOrders.forEach(order => {
+                    orderHTML += `<td>${order.orderQuantity.toLocaleString()}</td>`;
+                });
+                const totalOrders = plan.monthlyOrders.reduce((sum, o) => sum + o.orderQuantity, 0);
+                orderHTML += `<td class="total-col">${totalOrders.toLocaleString()}</td>`;
+                orderRow.innerHTML = orderHTML;
+                body.appendChild(orderRow);
+                
+                // Cost row
+                const costRow = document.createElement('tr');
+                let costHTML = '<td class="supplier-name-col"></td>';
+                costHTML += '<td><em>Cost ($)</em></td>';
+                plan.monthlyOrders.forEach(order => {
+                    costHTML += `<td>$${order.totalCost.toLocaleString()}</td>`;
+                });
+                costHTML += `<td class="total-col">$${plan.totalAnnualCost.toLocaleString()}</td>`;
+                costRow.innerHTML = costHTML;
+                costRow.style.borderBottom = '2px solid #dee2e6';
+                body.appendChild(costRow);
+            });
+            
+            console.log('Monthly plan display updated successfully');
+        }
+
+        // FIXED: Update annual summary display function (was missing)
+        function updateAnnualSummaryDisplay() {
+            console.log('Updating annual summary display...');
+            const statsContainer = document.getElementById('annualStatsContainer');
+            const allocationBody = document.getElementById('supplierAllocationBody');
+            
+            if (!statsContainer || !allocationBody) {
+                console.error('Annual summary elements not found');
+                return;
+            }
+            
+            // Update annual statistics
+            const totalVolume = annualSummary.totalVolume || 0;
+            const totalSpend = annualSummary.totalSpend || 0;
+            const peakMonth = annualSummary.peakMonth || { month: 'N/A', demand: 0 };
+            const lowMonth = annualSummary.lowMonth || { month: 'N/A', demand: 0 };
+            const numSuppliers = Object.keys(annualSummary.supplierAllocation || {}).length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalVolume.toLocaleString()}</div>
+                    <div class="stat-label">Total Annual Volume</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$${totalSpend.toLocaleString()}</div>
+                    <div class="stat-label">Total Annual Spend</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${numSuppliers}</div>
+                    <div class="stat-label">Active Suppliers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${peakMonth.month}</div>
+                    <div class="stat-label">Peak Month (${peakMonth.demand.toLocaleString()})</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${lowMonth.month}</div>
+                    <div class="stat-label">Low Month (${lowMonth.demand.toLocaleString()})</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$${(totalSpend / totalVolume).toFixed(2)}</div>
+                    <div class="stat-label">Avg Unit Cost</div>
+                </div>
+            `;
+            
+            // Update supplier allocation table
+            allocationBody.innerHTML = '';
+            
+            if (annualSummary.supplierAllocation) {
+                const sortedSuppliers = Object.entries(annualSummary.supplierAllocation)
+                    .sort(([,a], [,b]) => a.rank - b.rank);
+                
+                sortedSuppliers.forEach(([supplierName, allocation]) => {
+                    const row = document.createElement('tr');
+                    const rankClass = allocation.rank === 1 ? 'rank-1' : allocation.rank === 2 ? 'rank-2' : allocation.rank === 3 ? 'rank-3' : '';
+                    
+                    let rowHTML = `<td class="${rankClass}"><strong>#${allocation.rank}</strong></td>`;
+                    rowHTML += `<td><strong>${supplierName}</strong></td>`;
+                    rowHTML += `<td style="text-align: right;">${allocation.volumePercent.toFixed(1)}%</td>`;
+                    rowHTML += `<td style="text-align: right;">${allocation.annualUnits.toLocaleString()}</td>`;
+                    rowHTML += `<td style="text-align: right;">$${allocation.annualSpend.toLocaleString()}</td>`;
+                    rowHTML += `<td style="text-align: right;">${Math.round(allocation.avgMonthlyOrders).toLocaleString()}</td>`;
+                    
+                    row.innerHTML = rowHTML;
+                    allocationBody.appendChild(row);
+                });
+            }
+            
+            console.log('Annual summary display updated successfully');
+        }
+
+        // Calculate supplier allocation percentages
+        function calculateSupplierAllocation(supplierResults) {
+            console.log('Calculating supplier allocation...');
+            // Calculate total volume and spend across all products
+            const totalVolume = monthlyPlan.reduce((sum, p) => sum + p.totalAnnualDemand, 0);
+            const totalSpend = monthlyPlan.reduce((sum, p) => sum + p.totalAnnualCost, 0);
+            
+            // Group by supplier and calculate allocation
+            const supplierAllocation = {};
+            
+            supplierResults.forEach(supplierResult => {
+                const supplierProducts = monthlyPlan.filter(p => 
+                    p.supplier.name.split(' - ')[0] === supplierResult.supplierName
+                );
+                
+                const supplierVolume = supplierProducts.reduce((sum, p) => sum + p.totalAnnualDemand, 0);
+                const supplierSpend = supplierProducts.reduce((sum, p) => sum + p.totalAnnualCost, 0);
+                
+                supplierAllocation[supplierResult.supplierName] = {
+                    rank: supplierResult.overallRank,
+                    volumePercent: totalVolume > 0 ? (supplierVolume / totalVolume * 100) : 0,
+                    annualUnits: supplierVolume,
+                    annualSpend: supplierSpend,
+                    avgMonthlyOrders: supplierVolume / 12,
+                    products: supplierProducts
+                };
+            });
+            
+            annualSummary = {
+                totalVolume: totalVolume,
+                totalSpend: totalSpend,
+                supplierAllocation: supplierAllocation,
+                peakMonth: findPeakMonth(),
+                lowMonth: findLowMonth()
+            };
+            
+            console.log('Supplier allocation calculated:', annualSummary);
+        }
+
+        // Find peak and low demand months
+        function findPeakMonth() {
+            const monthlyTotals = Array(12).fill(0);
+            monthlyPlan.forEach(product => {
+                product.monthlyDemand.forEach((demand, month) => {
+                    monthlyTotals[month] += demand;
+                });
+            });
+            const peakIndex = monthlyTotals.indexOf(Math.max(...monthlyTotals));
+            return { month: MONTH_NAMES[peakIndex], demand: monthlyTotals[peakIndex] };
+        }
+
+        function findLowMonth() {
+            const monthlyTotals = Array(12).fill(0);
+            monthlyPlan.forEach(product => {
+                product.monthlyDemand.forEach((demand, month) => {
+                    monthlyTotals[month] += demand;
+                });
+            });
+            const lowIndex = monthlyTotals.indexOf(Math.min(...monthlyTotals));
+            return { month: MONTH_NAMES[lowIndex], demand: monthlyTotals[lowIndex] };
+        }
+
+        // FIXED: Export annual plan function (was missing)
+        function exportAnnualPlan() {
+            if (monthlyPlan.length === 0) {
+                showToast('No annual plan data to export. Please generate the annual plan first.', 'warning');
+                return;
+            }
+            
+            try {
+                let csv = '';
+                
+                // Annual Summary Section
+                csv += 'ANNUAL PROCUREMENT SUMMARY\n';
+                csv += `Total Annual Volume,${annualSummary.totalVolume}\n`;
+                csv += `Total Annual Spend,$${annualSummary.totalSpend.toLocaleString()}\n`;
+                csv += `Peak Month,${annualSummary.peakMonth.month} (${annualSummary.peakMonth.demand.toLocaleString()})\n`;
+                csv += `Low Month,${annualSummary.lowMonth.month} (${annualSummary.lowMonth.demand.toLocaleString()})\n`;
+                csv += '\n';
+                
+                // Supplier Allocation Section
+                csv += 'SUPPLIER ALLOCATION\n';
+                csv += 'Rank,Supplier,Volume %,Annual Units,Annual Spend,Avg Monthly Orders\n';
+                
+                const sortedSuppliers = Object.entries(annualSummary.supplierAllocation)
+                    .sort(([,a], [,b]) => a.rank - b.rank);
+                
+                sortedSuppliers.forEach(([supplierName, allocation]) => {
+                    csv += `${allocation.rank},"${supplierName}",${allocation.volumePercent.toFixed(1)}%,${allocation.annualUnits},$${allocation.annualSpend},${Math.round(allocation.avgMonthlyOrders)}\n`;
+                });
+                
+                csv += '\n\n';
+                
+                // Monthly Plan Details
+                csv += 'MONTHLY PROCUREMENT PLAN\n';
+                csv += `Supplier,Metric,${MONTH_NAMES.join(',')},Total\n`;
+                
+                monthlyPlan.forEach(plan => {
+                    // Demand row
+                    csv += `"${plan.supplier.name}",Demand,${plan.monthlyDemand.join(',')},${plan.totalAnnualDemand}\n`;
+                    
+                    // Order quantity row
+                    const orderQuantities = plan.monthlyOrders.map(o => o.orderQuantity);
+                    const totalOrders = orderQuantities.reduce((sum, q) => sum + q, 0);
+                    csv += `"${plan.supplier.name}",Order Quantity,${orderQuantities.join(',')},${totalOrders}\n`;
+                    
+                    // Cost row
+                    const monthlyCosts = plan.monthlyOrders.map(o => o.totalCost);
+                    csv += `"${plan.supplier.name}",Cost,$${monthlyCosts.join(',$')},${plan.totalAnnualCost}\n`;
+                });
+                
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+                const exportFileDefaultName = 'annual-procurement-plan.csv';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showToast('Annual procurement plan exported successfully', 'success');
+            } catch (error) {
+                console.error('Error exporting annual plan:', error);
+                showToast('Error exporting annual plan: ' + error.message, 'error');
+            }
+        }
+
+        // FIXED: Reset planning data function (was missing)
+        function resetPlanningData() {
+            if (confirm('This will reset all planning data to defaults. Continue?')) {
+                suppliers.forEach(supplier => {
+                    supplier.yearlyTarget = DEFAULT_YEARLY_TARGET;
+                    supplier.currentStockUnits = DEFAULT_CURRENT_STOCK_UNITS;
+                    supplier.safetyStock = DEFAULT_SAFETY_STOCK;
+                    supplier.seasonality = [...DEFAULT_SEASONALITY];
+                });
+                
+                // Clear existing plan
+                monthlyPlan = [];
+                annualSummary = {};
+                
+                // Hide planning sections
+                document.getElementById('monthlyPlanSection').style.display = 'none';
+                document.getElementById('annualSummarySection').style.display = 'none';
+                
+                // Update display
+                updatePlanningInputTable();
+                
+                showToast('Planning data reset to defaults', 'success');
+            }
+        }
+
+        // Calculate stock level based on total price, daily consumption, and lead times
+        function calculateStockLevel(supplier) {
+            const totalPrice = (supplier.basePrice || 0) + (supplier.customDuty || 0) + (supplier.additionalCost || 0);
+            const totalLeadTime = (supplier.manufacturingLeadTime || 0) + (supplier.shippingLeadTime || 0) + (supplier.customClearanceLeadTime || 0);
+            const dailyConsumption = supplier.dailyConsumption || DEFAULT_DAILY_CONSUMPTION;
+            
+            // Stock Level = Total Price × Daily Consumption × Total Lead Time × 2
+            return totalPrice * dailyConsumption * totalLeadTime * 2;
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await loadDataFromSupabase();
+            } catch (err) {
+                // sbCall already toasted the error; keep going with empty data so the page still renders
+            }
+
+            updateParametersDisplay();
+            updateTables();
+            updateResults();
+
+            // Initialize charts
+            initializeCharts();
+        });
+
+        // Show modal for adding parameter
+        function showAddParameterModal() {
+            const modal = document.getElementById('addParameterModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                
+                const nameInput = document.getElementById('newParamName');
+                const weightInput = document.getElementById('newParamWeight');
+                const typeSelect = document.getElementById('newParamType');
+                const nameError = document.getElementById('paramNameError');
+                const weightError = document.getElementById('paramWeightError');
+                
+                if (nameInput) nameInput.value = '';
+                if (weightInput) weightInput.value = '0.1';
+                if (typeSelect) typeSelect.value = 'higher';
+                if (nameError) nameError.style.display = 'none';
+                if (weightError) weightError.style.display = 'none';
+            }
+        }
+
+        // Hide modal for adding parameter
+        function hideAddParameterModal() {
+            const modal = document.getElementById('addParameterModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Add new parameter
+        async function addParameter() {
+            const nameInput = document.getElementById('newParamName');
+            const weightInput = document.getElementById('newParamWeight');
+            const typeSelect = document.getElementById('newParamType');
+            const nameError = document.getElementById('paramNameError');
+            const weightError = document.getElementById('paramWeightError');
+            
+            if (!nameInput || !weightInput || !typeSelect) {
+                showToast('Error accessing form elements', 'error');
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            const weight = parseFloat(weightInput.value);
+            const type = typeSelect.value;
+            
+            // Validate input
+            let isValid = true;
+            
+            if (!name) {
+                if (nameError) {
+                    nameError.textContent = 'Please enter a parameter name';
+                    nameError.style.display = 'block';
+                }
+                isValid = false;
+            } else if (parameters.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                if (nameError) {
+                    nameError.textContent = 'Parameter already exists';
+                    nameError.style.display = 'block';
+                }
+                isValid = false;
+            } else {
+                if (nameError) nameError.style.display = 'none';
+            }
+            
+            if (isNaN(weight) || weight < 0 || weight > 1) {
+                if (weightError) {
+                    weightError.textContent = 'Weight must be between 0 and 1';
+                    weightError.style.display = 'block';
+                }
+                isValid = false;
+            } else {
+                if (weightError) weightError.style.display = 'none';
+            }
+            
+            if (!isValid) return;
+
+            const paramId = name.toLowerCase().replace(/\s+/g, '');
+
+            try {
+                await sbCall(
+                    () => sb.from('parameters').insert(parameterToRow({ id: paramId, name, weight, type }, parameters.length)),
+                    `Failed to add parameter "${name}"`
+                );
+            } catch (err) {
+                return;
+            }
+
+            parameters.push({ id: paramId, name: name, weight: weight, type: type });
+
+            // Add default values for existing suppliers, and persist them so custom_values stays in sync
+            suppliers.forEach(supplier => {
+                supplier[paramId] = 0;
+            });
+            Promise.all(suppliers.map(s => persistSupplier(s)));
+
+            // Clear form and hide modal
+            hideAddParameterModal();
+
+            // Show success toast
+            showToast(`Parameter "${name}" added successfully`, 'success');
+
+            updateParametersDisplay();
+            updateTables();
+            updateResults();
+            updateCharts();
+        }
+
+        // Remove parameter
+        async function removeParameter(paramId) {
+            if (parameters.length <= 1) {
+                showToast('You must have at least one parameter', 'error');
+                return;
+            }
+
+            const param = parameters.find(p => p.id === paramId);
+            if (!param) {
+                showToast('Parameter not found', 'error');
+                return;
+            }
+
+            try {
+                await sbCall(() => sb.from('parameters').delete().eq('id', paramId),
+                    `Failed to remove parameter "${param.name}"`);
+            } catch (err) {
+                return;
+            }
+
+            const paramName = param.name;
+            parameters = parameters.filter(p => p.id !== paramId);
+
+            // Remove from suppliers (only truly custom keys - fixed columns like price/stock/reliability stay intact)
+            if (!FIXED_SUPPLIER_KEYS.has(paramId)) {
+                suppliers.forEach(supplier => {
+                    delete supplier[paramId];
+                });
+                Promise.all(suppliers.map(s => persistSupplier(s)));
+            }
+
+            showToast(`Parameter "${paramName}" removed`, 'success');
+
+            updateParametersDisplay();
+            updateTables();
+            updateResults();
+            updateCharts();
+        }
+
+        // Update parameter weight
+        async function updateParameterWeight(paramId, weight) {
+            const param = parameters.find(p => p.id === paramId);
+            if (param) {
+                const newWeight = parseFloat(weight) || 0;
+                if (newWeight < 0 || newWeight > 1) {
+                    showToast('Weight must be between 0 and 1', 'error');
+                    return;
+                }
+                param.weight = newWeight;
+                try {
+                    await sbCall(() => sb.from('parameters').update({ weight: newWeight }).eq('id', paramId),
+                        `Failed to save weight for "${param.name}"`);
+                } catch (err) { /* toasted already */ }
+                updateResults();
+                updateCharts();
+            }
+        }
+
+        // Normalize weights to sum to 1.0
+        async function normalizeWeights() {
+            const totalWeight = parameters.reduce((sum, p) => sum + p.weight, 0);
+            if (totalWeight > 0) {
+                parameters.forEach(p => p.weight = p.weight / totalWeight);
+                try {
+                    await Promise.all(parameters.map(p =>
+                        sbCall(() => sb.from('parameters').update({ weight: p.weight }).eq('id', p.id),
+                            `Failed to save weight for "${p.name}"`)
+                    ));
+                } catch (err) { /* toasted already */ }
+                showToast('Weights normalized to sum to 1.0', 'success');
+                updateParametersDisplay();
+                updateResults();
+                updateCharts();
+            }
+        }
+
+        // Reset to default parameters
+        async function resetToDefault() {
+            if (!confirm('This will reset all parameters and suppliers to default. Continue?')) return;
+
+            const defaultParams = [
+                { id: 'price', name: 'Price', weight: 0.20, type: 'lower' },
+                { id: 'totalLeadTime', name: 'Total Lead Time', weight: 0.30, type: 'lower' },
+                { id: 'payment', name: 'Payment Terms', weight: 0.20, type: 'higher' },
+                { id: 'stock', name: 'Stock Level', weight: 0.15, type: 'lower' },
+                { id: 'reliability', name: 'Reliability', weight: 0.15, type: 'higher' }
+            ];
+
+            const defaultSuppliers = [
+                {
+                    name: "Supplier 1",
+                    basePrice: 18.00,
+                    customDutyPercent: DEFAULT_DUTY_PERCENTAGE,
+                    customDuty: 18.00 * (DEFAULT_DUTY_PERCENTAGE / 100),
+                    additionalCost: 0.00,
+                    price: 18.00 * (1 + DEFAULT_DUTY_PERCENTAGE / 100),
+                    manufacturingLeadTime: 14,
+                    shippingLeadTime: 45,
+                    customClearanceLeadTime: 14,
+                    totalLeadTime: 73,
+                    payment: 75,
+                    stock: 8273.33,
+                    reliability: 5
+                },
+                {
+                    name: "Supplier 2",
+                    basePrice: 21.50,
+                    customDutyPercent: 0,
+                    customDuty: 0.00,
+                    additionalCost: 0.00,
+                    price: 21.50,
+                    manufacturingLeadTime: 7,
+                    shippingLeadTime: 12,
+                    customClearanceLeadTime: 14,
+                    totalLeadTime: 33,
+                    payment: 0,
+                    stock: 3740,
+                    reliability: 5
+                },
+                {
+                    name: "Supplier 3",
+                    basePrice: 19.00,
+                    customDutyPercent: DEFAULT_DUTY_PERCENTAGE,
+                    customDuty: 19.00 * (DEFAULT_DUTY_PERCENTAGE / 100),
+                    additionalCost: 0.00,
+                    price: 19.00 * (1 + DEFAULT_DUTY_PERCENTAGE / 100),
+                    manufacturingLeadTime: 14,
+                    shippingLeadTime: 45,
+                    customClearanceLeadTime: 14,
+                    totalLeadTime: 73,
+                    payment: 75,
+                    stock: 8273.33,
+                    reliability: 4.99
+                }
+            ];
+
+            try {
+                await sbCall(() => sb.from('suppliers').delete().not('id', 'is', null), 'Failed to clear suppliers');
+                await sbCall(() => sb.from('parameters').delete().not('id', 'is', null), 'Failed to clear parameters');
+                await sbCall(() => sb.from('parameters').insert(defaultParams.map((p, i) => parameterToRow(p, i))),
+                    'Failed to insert default parameters');
+                const supplierRows = await sbCall(
+                    () => sb.from('suppliers').insert(defaultSuppliers.map(supplierToRow)).select(),
+                    'Failed to insert default suppliers'
+                );
+                parameters = defaultParams;
+                suppliers = supplierRows.map(rowToSupplier);
+            } catch (err) {
+                return;
+            }
+
+            showToast('Reset to default settings', 'success');
+
+            updateParametersDisplay();
+            updateTables();
+            updateResults();
+            updateCharts();
+        }
+
+        // Update parameters display
+        function updateParametersDisplay() {
+            const container = document.getElementById('parametersContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+
+            parameters.forEach(param => {
+                const div = document.createElement('div');
+                div.className = 'parameter-item';
+                div.innerHTML = `
+                    <label title="Parameter name">${param.name}:</label>
+                    <input type="number" value="${param.weight.toFixed(3)}" min="0" max="1" step="0.001" 
+                           title="Weight for ${param.name} (0.000 to 1.000)"
+                           onchange="updateParameterWeight('${param.id}', this.value)">
+                    <span title="${param.type === 'higher' ? 'Higher values receive better scores' : 'Lower values receive better scores'}">(${param.type === 'higher' ? 'Higher is Better' : 'Lower is Better'})</span>
+                    <button class="btn btn-danger btn-sm" title="Remove this parameter from scoring" onclick="removeParameter('${param.id}')">🗑️ Remove</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Update tables structure
+        function updateTables() {
+            updateInputTable();
+            updateResultsTable();
+            updatePlanningInputTable(); // Add planning table update
+        }
+
+        // Update input table
+        function updateInputTable() {
+            const header = document.getElementById('inputHeader');
+            const body = document.getElementById('inputBody');
+            
+            if (!header || !body) return;
+
+            // Create header with tooltips - keep all detailed columns
+            const headerTooltips = {
+                'Supplier Name': 'The name or identifier of the supplier',
+                'Product Description': 'Description of the products/services provided by this supplier',
+                'Base Price': 'Base unit price before duties and additional costs',
+                'Custom Duty (%)': 'Customs duty percentage',
+                'Additional Cost': 'Any additional costs (shipping, handling, etc.)',
+                'Manufacturing Lead Time': 'Time required for manufacturing/production (days)',
+                'Shipping Lead Time': 'Time required for shipping/transport (days)',
+                'Custom Clearance Lead Time': 'Time required for customs clearance (days)',
+                'Daily Consumption': 'Units consumed per day for stock calculation',
+                'Stock Level': 'Calculated inventory value (Total Price × Daily Consumption × Total Lead Time × 2)',
+                'Payment Terms': 'Number of days given to pay invoices',
+                'Reliability': 'Consistency and dependability score (0-5)',
+                'Stability': 'Financial and operational stability score (0-5)'
+            };
+
+            // Build header with all price columns visible in input
+            let headerRow = '<tr><th title="' + headerTooltips['Supplier Name'] + '">Supplier Name</th>';
+            headerRow += `<th title="${headerTooltips['Product Description']}">Product Description</th>`;
+            
+            // Add all parameters except price and totalLeadTime to the input table
+            parameters.forEach(p => {
+                if (p.id !== 'price' && p.id !== 'totalLeadTime') {
+                    const tooltip = headerTooltips[p.name] || `${p.name} - ${p.type === 'higher' ? 'Higher values are better' : 'Lower values are better'}`;
+                    headerRow += `<th title="${tooltip}">${p.name}</th>`;
+                }
+            });
+            
+            // Add the three price columns explicitly
+            headerRow += `<th title="${headerTooltips['Base Price']}">Base Price</th>`;
+            headerRow += `<th title="${headerTooltips['Custom Duty (%)']}">Custom Duty (%)</th>`;
+            headerRow += `<th title="${headerTooltips['Additional Cost']}">Additional Cost</th>`;
+            
+            // Add the three lead time columns explicitly
+            headerRow += `<th title="${headerTooltips['Manufacturing Lead Time']}">Manufacturing Lead Time</th>`;
+            headerRow += `<th title="${headerTooltips['Shipping Lead Time']}">Shipping Lead Time</th>`;
+            headerRow += `<th title="${headerTooltips['Custom Clearance Lead Time']}">Custom Clearance Lead Time</th>`;
+            
+            // Add Daily Consumption and Stock Level
+            headerRow += `<th title="${headerTooltips['Daily Consumption']}">Daily Consumption</th>`;
+            headerRow += `<th title="${headerTooltips['Stock Level']}">Stock Level (Calculated)</th>`;
+            
+            headerRow += '<th title="Actions to perform on this supplier">Action</th></tr>';
+            
+            header.innerHTML = headerRow;
+
+            // Create body with all fields
+            body.innerHTML = '';
+            suppliers.forEach(supplier => {
+                const row = document.createElement('tr');
+                let rowHTML = `<td><input type="text" value="${supplier.name}" onchange="updateSupplier(${supplier.id}, 'name', this.value)"></td>`;
+                rowHTML += `<td><input type="text" value="${supplier.productDescription || ''}" 
+                               placeholder="Enter product description..." 
+                               onchange="updateSupplier(${supplier.id}, 'productDescription', this.value)"
+                               style="min-width: 200px;"></td>`;
+                
+                // Add inputs for all parameters except price and totalLeadTime
+                parameters.forEach(p => {
+                    if (p.id !== 'price' && p.id !== 'totalLeadTime') {
+                        rowHTML += `<td><input type="number" value="${supplier[p.id] || 0}" step="0.01" 
+                                       onchange="updateSupplier(${supplier.id}, '${p.id}', this.value)"></td>`;
+                    }
+                });
+                
+                // Add the three price inputs explicitly
+                rowHTML += `<td><input type="number" value="${supplier.basePrice || 0}" step="0.01"
+                               onchange="updateSupplier(${supplier.id}, 'basePrice', this.value)"></td>`;
+                
+                // Updated custom duty field to show percentage with % symbol
+                rowHTML += `<td>
+                              <div class="input-group">
+                                <input type="number" value="${supplier.customDutyPercent || 0}" min="0" step="0.1" 
+                                   onchange="updateSupplier(${supplier.id}, 'customDutyPercent', this.value)">
+                                <span class="input-group-text">%</span>
+                              </div>
+                            </td>`;
+                
+                rowHTML += `<td><input type="number" value="${supplier.additionalCost || 0}" step="0.01"
+                               onchange="updateSupplier(${supplier.id}, 'additionalCost', this.value)"></td>`;
+                
+                // Add the three lead time inputs explicitly
+                rowHTML += `<td><input type="number" value="${supplier.manufacturingLeadTime || 0}" 
+                               onchange="updateSupplier(${supplier.id}, 'manufacturingLeadTime', this.value)"></td>`;
+                rowHTML += `<td><input type="number" value="${supplier.shippingLeadTime || 0}" 
+                               onchange="updateSupplier(${supplier.id}, 'shippingLeadTime', this.value)"></td>`;
+                rowHTML += `<td><input type="number" value="${supplier.customClearanceLeadTime || 0}" 
+                               onchange="updateSupplier(${supplier.id}, 'customClearanceLeadTime', this.value)"></td>`;
+                
+                // Add Daily Consumption input
+                rowHTML += `<td><input type="number" value="${supplier.dailyConsumption || DEFAULT_DAILY_CONSUMPTION}" min="0" step="1"
+                               onchange="updateSupplier(${supplier.id}, 'dailyConsumption', this.value)"
+                               title="Units consumed per day"></td>`;
+                
+                // Add calculated Stock Level (read-only display)
+                const calculatedStock = calculateStockLevel(supplier);
+                rowHTML += `<td><input type="number" value="${calculatedStock.toFixed(2)}" readonly 
+                               class="bg-gray-100" title="Automatically calculated: Total Price × Daily Consumption × Total Lead Time × 2"></td>`;
+                
+                rowHTML += `<td><button class="btn btn-danger btn-sm" onclick="removeSupplier(${supplier.id})">🗑️ Remove</button></td>`;
+                
+                row.innerHTML = rowHTML;
+                body.appendChild(row);
+            });
+        }
+
+        // Update results table
+        function updateResultsTable() {
+            const header = document.getElementById('resultsHeader');
+            if (!header) return;
+            
+            // Define tooltips for results table
+            const resultTooltips = {
+                'Rank': 'Final ranking based on weighted score (1 = best)',
+                'Supplier': 'Name of the supplier',
+                'Product Description': 'Description of the products/services provided by this supplier',
+                'Price': 'Total price including base price, custom duty, and additional costs',
+                'Total Lead Time': 'Combined time for manufacturing, shipping, and customs clearance (days)',
+                'Payment Terms': 'Number of days given to pay invoices',
+                'Stock Level': 'Inventory level maintained by supplier',
+                'Reliability': 'Consistency and dependability score (0-5)',
+                'Stability': 'Financial and operational stability score (0-5)',
+                'Weighted Score': 'Final calculated score based on all parameters and their weights'
+            };
+            
+            header.innerHTML = `
+                <tr>
+                    <th title="${resultTooltips['Rank']}">Rank</th>
+                    <th title="${resultTooltips['Supplier']}">Supplier</th>
+                    <th title="${resultTooltips['Product Description']}">Product Description</th>
+                    ${parameters.map(p => {
+                        // Show "Total Price" instead of "Price" in header
+                        const displayName = p.id === 'price' ? 'Total Price' : p.name;
+                        const tooltip = p.id === 'price' ? resultTooltips['Price'] : 
+                                      (resultTooltips[p.name] || `${p.name} - ${p.type === 'higher' ? 'Higher values are better' : 'Lower values are better'}`);
+                        return `<th title="${tooltip}">${displayName}</th>`;
+                    }).join('')}
+                    <th title="${resultTooltips['Weighted Score']}">Weighted Score</th>
+                </tr>
+            `;
+        }
+
+        // Add new supplier
+        async function addSupplier() {
+            const tempId = Math.max(...suppliers.map(s => s.id), 0) + 1;
+            const basePrice = 0;
+            const customDutyPercent = DEFAULT_DUTY_PERCENTAGE;
+
+            const newSupplier = {
+                name: `Supplier ${tempId}`,
+                productDescription: `Product/service description for Supplier ${tempId}`,
+                // Add the three price components for input
+                basePrice: basePrice,
+                customDutyPercent: customDutyPercent,
+                customDuty: basePrice * (customDutyPercent / 100),
+                additionalCost: 0,
+                price: basePrice * (1 + customDutyPercent / 100),
+                // Add the three lead time components for input
+                manufacturingLeadTime: 0,
+                shippingLeadTime: 0,
+                customClearanceLeadTime: 0,
+                totalLeadTime: 0,
+                // Add daily consumption and automatically calculate stock
+                dailyConsumption: DEFAULT_DAILY_CONSUMPTION,
+                stock: 0, // Will be calculated automatically for new suppliers
+                payment: 0,
+                reliability: 0,
+                // Annual planning fields
+                yearlyTarget: DEFAULT_YEARLY_TARGET,
+                currentStockUnits: DEFAULT_CURRENT_STOCK_UNITS,
+                safetyStock: DEFAULT_SAFETY_STOCK,
+                seasonality: [...DEFAULT_SEASONALITY]
+            };
+
+            // Calculate stock level automatically for new suppliers
+            newSupplier.stock = calculateStockLevel(newSupplier);
+
+            // Add default values for all parameters
+            parameters.forEach(param => {
+                if (param.id !== 'totalLeadTime' && param.id !== 'price') { // Don't override the calculated values
+                    newSupplier[param.id] = 0;
+                }
+            });
+
+            let insertedRow;
+            try {
+                insertedRow = await sbCall(
+                    () => sb.from('suppliers').insert(supplierToRow(newSupplier)).select().single(),
+                    'Failed to add supplier'
+                );
+            } catch (err) {
+                return;
+            }
+
+            const savedSupplier = { ...newSupplier, ...rowToSupplier(insertedRow) };
+            suppliers.push(savedSupplier);
+
+            showToast(`Supplier ${savedSupplier.name} added with automatic stock calculation and planning defaults`, 'success');
+
+            updateTables();
+            updateResults();
+            updateCharts();
+            updatePlanningInputTable(); // Update planning table too
+        }
+
+        // Remove supplier
+        async function removeSupplier(id) {
+            if (suppliers.length > 1) {
+                const supplier = suppliers.find(s => s.id === id);
+                if (!supplier) {
+                    showToast('Supplier not found', 'error');
+                    return;
+                }
+
+                try {
+                    await sbCall(() => sb.from('suppliers').delete().eq('id', id),
+                        `Failed to remove "${supplier.name}"`);
+                } catch (err) {
+                    return;
+                }
+
+                const supplierName = supplier.name;
+                suppliers = suppliers.filter(s => s.id !== id);
+
+                showToast(`${supplierName} removed`, 'success');
+
+                updateTables();
+                updateResults();
+                updateCharts();
+
+                // Clear any existing annual plan when suppliers are removed
+                if (monthlyPlan.length > 0) {
+                    monthlyPlan = [];
+                    document.getElementById('monthlyPlanSection').style.display = 'none';
+                    document.getElementById('annualSummarySection').style.display = 'none';
+                    showToast('Supplier removed. Please regenerate the annual plan.', 'info');
+                }
+            } else {
+                showToast('You must have at least one supplier', 'error');
+            }
+        }
+
+        // Update supplier data
+        async function updateSupplier(id, field, value) {
+            const supplier = suppliers.find(s => s.id === id);
+            if (supplier) {
+                if (field === 'name' || field === 'productDescription') {
+                    supplier[field] = value;
+                } else {
+                    const numValue = parseFloat(value);
+
+                    // Input validation
+                    if (isNaN(numValue)) {
+                        showToast('Please enter a valid number', 'error');
+                        return;
+                    }
+
+                    supplier[field] = numValue;
+                }
+
+                // Automatically calculate total lead time when any lead time component changes
+                if (field === 'manufacturingLeadTime' || field === 'shippingLeadTime' || field === 'customClearanceLeadTime') {
+                    supplier.totalLeadTime = (supplier.manufacturingLeadTime || 0) +
+                                           (supplier.shippingLeadTime || 0) +
+                                           (supplier.customClearanceLeadTime || 0);
+                }
+
+                // Handle custom duty percentage changes
+                if (field === 'customDutyPercent') {
+                    // Update the actual duty amount based on the new percentage
+                    supplier.customDuty = supplier.basePrice * (supplier.customDutyPercent / 100);
+                }
+
+                // Automatically calculate custom duty when base price changes
+                if (field === 'basePrice') {
+                    // Recalculate custom duty based on the percentage
+                    supplier.customDuty = supplier.basePrice * (supplier.customDutyPercent / 100);
+                }
+
+                // Automatically calculate total price when any price component changes
+                if (field === 'basePrice' || field === 'customDutyPercent' || field === 'additionalCost') {
+                    supplier.price = (supplier.basePrice || 0) +
+                                    (supplier.basePrice * (supplier.customDutyPercent / 100) || 0) +
+                                    (supplier.additionalCost || 0);
+                }
+
+                // Recalculate stock level when relevant fields change
+                if (field === 'basePrice' || field === 'customDutyPercent' || field === 'additionalCost' ||
+                    field === 'manufacturingLeadTime' || field === 'shippingLeadTime' ||
+                    field === 'customClearanceLeadTime' || field === 'dailyConsumption') {
+                    // Auto-calculate for new suppliers (those with supplier.id >= 4)
+                    // Keep manual values for original suppliers (id 1, 2, 3)
+                    if (supplier.id >= 4) {
+                        supplier.stock = calculateStockLevel(supplier);
+                    }
+                }
+
+                try {
+                    await persistSupplier(supplier);
+                } catch (err) { /* toasted already */ }
+
+                updateResults();
+                updateCharts();
+            }
+        }
+
+        // Calculate normalized values
+        function calculateNormalizedValues(suppliers) {
+            const minMax = {};
+
+            // Calculate min/max for each parameter
+            parameters.forEach(param => {
+                let values;
+                if (param.id === 'totalLeadTime') {
+                    // Calculate total lead time for each supplier
+                    values = suppliers.map(s => (s.manufacturingLeadTime || 0) + (s.shippingLeadTime || 0) + (s.customClearanceLeadTime || 0));
+                } else if (param.id === 'price') {
+                    // Calculate total price for each supplier
+                    values = suppliers.map(s => (s.basePrice || 0) + (s.customDuty || 0) + (s.additionalCost || 0));
+                } else {
+                    values = suppliers.map(s => s[param.id] || 0);
+                }
+                minMax[param.id] = {
+                    min: Math.min(...values),
+                    max: Math.max(...values)
+                };
+            });
+
+            return suppliers.map(supplier => {
+                const normalized = { ...supplier };
+                
+                parameters.forEach(param => {
+                    let value;
+                    if (param.id === 'totalLeadTime') {
+                        // Calculate total lead time for this supplier
+                        value = (supplier.manufacturingLeadTime || 0) + (supplier.shippingLeadTime || 0) + (supplier.customClearanceLeadTime || 0);
+                    } else if (param.id === 'price') {
+                        // Calculate total price for this supplier
+                        value = (supplier.basePrice || 0) + (supplier.customDuty || 0) + (supplier.additionalCost || 0);
+                    } else {
+                        value = supplier[param.id] || 0;
+                    }
+                    
+                    const min = minMax[param.id].min;
+                    const max = minMax[param.id].max;
+                    
+                    if (max === min) {
+                        normalized[`norm_${param.id}`] = 1;
+                    } else {
+                        if (param.type === 'higher') {
+                            // Higher is better
+                            normalized[`norm_${param.id}`] = (value - min) / (max - min);
+                        } else {
+                            // Lower is better
+                            normalized[`norm_${param.id}`] = (max - value) / (max - min);
+                        }
+                    }
+                });
+
+                return normalized;
+            });
+        }
+
+        // Calculate supplier-level aggregated scores
+        function calculateSupplierAggregates(productResults) {
+            const supplierGroups = {};
+            
+            // Group products by supplier name
+            productResults.forEach(product => {
+                const supplierName = product.name.split(' - ')[0] || product.name; // Extract supplier name (before " - " if exists)
+                
+                if (!supplierGroups[supplierName]) {
+                    supplierGroups[supplierName] = {
+                        supplierName: supplierName,
+                        products: [],
+                        totalWeight: 0,
+                        weightedScore: 0,
+                        totalPortfolioValue: 0
+                    };
+                }
+                
+                // Calculate product weight based on daily consumption * total price (represents value impact)
+                const productWeight = (product.dailyConsumption || DEFAULT_DAILY_CONSUMPTION) * 
+                                    ((product.basePrice || 0) + (product.customDuty || 0) + (product.additionalCost || 0));
+                
+                supplierGroups[supplierName].products.push({
+                    name: product.name,
+                    productDescription: product.productDescription,
+                    score: product.weightedScore,
+                    weight: productWeight,
+                    rank: product.rank
+                });
+                
+                supplierGroups[supplierName].totalWeight += productWeight;
+                supplierGroups[supplierName].weightedScore += product.weightedScore * productWeight;
+                supplierGroups[supplierName].totalPortfolioValue += productWeight;
+            });
+            
+            // Calculate weighted averages and convert to array
+            const supplierResults = Object.values(supplierGroups).map(group => {
+                if (group.totalWeight > 0) {
+                    group.overallScore = group.weightedScore / group.totalWeight;
+                } else {
+                    group.overallScore = 0;
+                }
+                group.productCount = group.products.length;
+                return group;
+            });
+            
+            // Sort by overall score and add ranks
+            supplierResults.sort((a, b) => b.overallScore - a.overallScore);
+            supplierResults.forEach((supplier, index) => {
+                supplier.overallRank = index + 1;
+            });
+            
+            return supplierResults;
+        }
+
+        // Update supplier summary table
+        function updateSupplierSummary(supplierResults) {
+            const summaryBody = document.getElementById('supplierSummaryBody');
+            if (!summaryBody) return;
+            
+            summaryBody.innerHTML = '';
+            
+            supplierResults.forEach(supplier => {
+                const row = document.createElement('tr');
+                const rankClass = supplier.overallRank === 1 ? 'rank-1' : supplier.overallRank === 2 ? 'rank-2' : supplier.overallRank === 3 ? 'rank-3' : '';
+                
+                // Create product breakdown display
+                const productBreakdown = supplier.products
+                    .sort((a, b) => a.rank - b.rank)
+                    .map(p => {
+                        // Try to extract product name by removing supplier prefix
+                        let displayName = p.name;
+                        if (p.name.includes(' - ')) {
+                            displayName = p.name.split(' - ').slice(1).join(' - ') || p.name;
+                        }
+                        return `${displayName} (Rank #${p.rank}, Score: ${formatNumber(p.score)})`;
+                    })
+                    .join('<br>');
+                
+                let rowHTML = `<td class="${rankClass}"><strong>#${supplier.overallRank}</strong></td>`;
+                rowHTML += `<td><strong>${supplier.supplierName}</strong></td>`;
+                rowHTML += `<td style="text-align: center;">${supplier.productCount}</td>`;
+                rowHTML += `<td style="text-align: right;">${formatNumber(supplier.totalPortfolioValue)}</td>`;
+                rowHTML += `<td class="${rankClass}"><strong>${formatNumber(supplier.overallScore)}</strong></td>`;
+                rowHTML += `<td style="font-size: 12px; max-width: 300px;">${productBreakdown}</td>`;
+                
+                row.innerHTML = rowHTML;
+                summaryBody.appendChild(row);
+            });
+        }
+
+        function calculateWeightedScores(normalizedSuppliers) {
+            const suppliersWithScores = normalizedSuppliers.map(supplier => {
+                let weightedScore = 0;
+                
+                parameters.forEach(param => {
+                    weightedScore += (supplier[`norm_${param.id}`] || 0) * param.weight;
+                });
+
+                return { ...supplier, weightedScore };
+            });
+
+            // Sort by score and add ranks
+            suppliersWithScores.sort((a, b) => b.weightedScore - a.weightedScore);
+            return suppliersWithScores.map((supplier, index) => ({ ...supplier, rank: index + 1 }));
+        }
+
+        // Format number
+        function formatNumber(num) {
+            return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+        }
+
+        // Add classes for color coding
+        function getValueClass(value, param, results) {
+            try {
+                // Find the best and worst values
+                let bestValue, worstValue;
+                
+                if (param.type === 'higher') {
+                    bestValue = Math.max(...results.map(r => {
+                        if (param.id === 'totalLeadTime') {
+                            return (r.totalLeadTime || 0);
+                        } else if (param.id === 'price') {
+                            return (r.price || 0);
+                        } else {
+                            return (r[param.id] || 0);
+                        }
+                    }));
+                    worstValue = Math.min(...results.map(r => {
+                        if (param.id === 'totalLeadTime') {
+                            return (r.totalLeadTime || 0);
+                        } else if (param.id === 'price') {
+                            return (r.price || 0);
+                        } else {
+                            return (r[param.id] || 0);
+                        }
+                    }));
+                } else { // lower is better
+                    bestValue = Math.min(...results.map(r => {
+                        if (param.id === 'totalLeadTime') {
+                            return (r.totalLeadTime || 0);
+                        } else if (param.id === 'price') {
+                            return (r.price || 0);
+                        } else {
+                            return (r[param.id] || 0);
+                        }
+                    }));
+                    worstValue = Math.max(...results.map(r => {
+                        if (param.id === 'totalLeadTime') {
+                            return (r.totalLeadTime || 0);
+                        } else if (param.id === 'price') {
+                            return (r.price || 0);
+                        } else {
+                            return (r[param.id] || 0);
+                        }
+                    }));
+                }
+                
+                const tolerance = (worstValue - bestValue) * 0.2;
+                
+                if (param.type === 'higher') {
+                    if (Math.abs(value - bestValue) <= tolerance) {
+                        return 'cell-good';
+                    } else if (Math.abs(value - worstValue) <= tolerance) {
+                        return 'cell-bad';
+                    }
+                } else { // lower is better
+                    if (Math.abs(value - bestValue) <= tolerance) {
+                        return 'cell-good';
+                    } else if (Math.abs(value - worstValue) <= tolerance) {
+                        return 'cell-bad';
+                    }
+                }
+            } catch (e) {
+                console.error("Error in getValueClass:", e);
+            }
+            
+            return '';
+        }
+
+        // Update results
+        function updateResults() {
+            try {
+                const normalizedSuppliers = calculateNormalizedValues(suppliers);
+                const productResults = calculateWeightedScores(normalizedSuppliers);
+                
+                // Calculate supplier-level aggregates
+                const supplierResults = calculateSupplierAggregates(productResults);
+    
+                // Update statistics
+                const statsContainer = document.getElementById('statsContainer');
+                if (statsContainer) {
+                    const totalWeight = parameters.reduce((sum, p) => sum + p.weight, 0);
+                    const topProductScore = productResults.length > 0 ? productResults[0].weightedScore : 0;
+                    const avgProductScore = productResults.length > 0 ? productResults.reduce((sum, r) => sum + r.weightedScore, 0) / productResults.length : 0;
+                    const topSupplierScore = supplierResults.length > 0 ? supplierResults[0].overallScore : 0;
+                    const totalSuppliers = supplierResults.length;
+    
+                    statsContainer.innerHTML = `
+                        <div class="stat-item">
+                            <div class="stat-value">${suppliers.length}</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${totalSuppliers}</div>
+                            <div class="stat-label">Unique Suppliers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${parameters.length}</div>
+                            <div class="stat-label">Parameters</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${formatNumber(topSupplierScore)}</div>
+                            <div class="stat-label">Top Supplier Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${formatNumber(topProductScore)}</div>
+                            <div class="stat-label">Top Product Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${formatNumber(totalWeight)}</div>
+                            <div class="stat-label">Total Weight</div>
+                        </div>
+                    `;
+                }
+                
+                // Update supplier summary table
+                updateSupplierSummary(supplierResults);
+    
+                // Update product-level results table
+                const resultsBody = document.getElementById('resultsBody');
+                if (resultsBody) {
+                    resultsBody.innerHTML = '';
+    
+                    productResults.forEach(result => {
+                        const row = document.createElement('tr');
+                        const rankClass = result.rank === 1 ? 'rank-1' : result.rank === 2 ? 'rank-2' : result.rank === 3 ? 'rank-3' : '';
+                        
+                        let rowHTML = `<td class="${rankClass}">#${result.rank}</td>`;
+                        rowHTML += `<td><strong>${result.name}</strong></td>`;
+                        rowHTML += `<td style="max-width: 200px; word-wrap: break-word;">${result.productDescription || 'No description'}</td>`;
+                        
+                        // Show parameters, but display calculated values for totalLeadTime and price
+                        parameters.forEach(p => {
+                            let value, displayValue;
+                            
+                            if (p.id === 'totalLeadTime') {
+                                // Calculate and display total lead time
+                                value = (result.manufacturingLeadTime || 0) + 
+                                       (result.shippingLeadTime || 0) + 
+                                       (result.customClearanceLeadTime || 0);
+                                displayValue = formatNumber(value);
+                            } else if (p.id === 'price') {
+                                // Calculate and display total price
+                                value = (result.basePrice || 0) + 
+                                      (result.customDuty || 0) + 
+                                      (result.additionalCost || 0);
+                                displayValue = formatNumber(value);
+                            } else {
+                                value = result[p.id] || 0;
+                                displayValue = formatNumber(value);
+                            }
+                            
+                            const cellClass = getValueClass(value, p, productResults);
+                            rowHTML += `<td class="${cellClass}">${displayValue}</td>`;
+                        });
+                        
+                        rowHTML += `<td><strong>${formatNumber(result.weightedScore)}</strong></td>`;
+                        row.innerHTML = rowHTML;
+                        resultsBody.appendChild(row);
+                    });
+                }
+            } catch (e) {
+                console.error("Error updating results:", e);
+                showToast("Error updating results", "error");
+            }
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            try {
+                // Only initialize charts if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    console.warn('Chart.js is not loaded. Charts will not be initialized.');
+                    return;
+                }
+    
+                // Create radar chart
+                const radarCtx = document.getElementById('radarChart');
+                if (radarCtx) {
+                    radarChart = new Chart(radarCtx.getContext('2d'), {
+                        type: 'radar',
+                        data: {
+                            labels: [], // Will be populated later
+                            datasets: []
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Supplier Comparison Radar Chart',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        backdropColor: 'rgba(255, 255, 255, 0.8)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Create bar chart
+                const barCtx = document.getElementById('barChart');
+                if (barCtx) {
+                    barChart = new Chart(barCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: [], // Will be populated later
+                            datasets: []
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Final Weighted Scores',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 1.0,
+                                    title: {
+                                        display: true,
+                                        text: 'Weighted Score',
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Suppliers',
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Initial chart update
+                updateCharts();
+            } catch (e) {
+                console.error("Error initializing charts:", e);
+            }
+        }
+
+        // Update charts
+        function updateCharts() {
+            try {
+                if (!radarChart && !barChart) {
+                    // If charts aren't initialized yet, try to initialize them
+                    if (typeof Chart !== 'undefined') {
+                        initializeCharts();
+                        return;
+                    }
+                    console.warn('Charts are not initialized and Chart.js is not loaded.');
+                    return;
+                }
+    
+                const normalizedSuppliers = calculateNormalizedValues(suppliers);
+                const productResults = calculateWeightedScores(normalizedSuppliers);
+                const supplierResults = calculateSupplierAggregates(productResults);
+                
+                // Update radar chart with supplier-level data
+                if (radarChart) {
+                    updateRadarChart(supplierResults, true); // true indicates supplier-level data
+                }
+                
+                // Update bar chart with supplier-level data
+                if (barChart) {
+                    updateBarChart(supplierResults, true); // true indicates supplier-level data
+                }
+            } catch (e) {
+                console.error("Error updating charts:", e);
+            }
+        }
+
+        // Update radar chart
+        function updateRadarChart(results, isSupplierLevel = false) {
+            try {
+                if (!radarChart) return;
+                
+                if (isSupplierLevel) {
+                    // For supplier-level data, show overall scores
+                    const topSuppliers = results.slice(0, Math.min(3, results.length));
+                    
+                    const labels = ['Overall Score', 'Product Count', 'Portfolio Value (Normalized)'];
+                    
+                    // Normalize portfolio values for radar display
+                    const maxPortfolioValue = Math.max(...results.map(s => s.totalPortfolioValue));
+                    
+                    const colors = [
+                        'rgba(40, 167, 69, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(23, 162, 184, 0.7)'
+                    ];
+                    
+                    const datasets = topSuppliers.map((supplier, index) => {
+                        return {
+                            label: supplier.supplierName,
+                            data: [
+                                supplier.overallScore,
+                                supplier.productCount / Math.max(...results.map(s => s.productCount)),
+                                maxPortfolioValue > 0 ? supplier.totalPortfolioValue / maxPortfolioValue : 0
+                            ],
+                            backgroundColor: colors[index].replace('0.7', '0.2'),
+                            borderColor: colors[index],
+                            borderWidth: 2,
+                            pointBackgroundColor: colors[index],
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: colors[index]
+                        };
+                    });
+                    
+                    radarChart.data.labels = labels;
+                    radarChart.data.datasets = datasets;
+                    radarChart.options.plugins.title.text = 'Top Suppliers Comparison';
+                } else {
+                    // Original product-level radar chart logic
+                    const topProducts = results.slice(0, Math.min(3, results.length));
+                    const labels = parameters.map(p => p.name);
+                    
+                    const colors = [
+                        'rgba(40, 167, 69, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(23, 162, 184, 0.7)'
+                    ];
+                    
+                    const datasets = topProducts.map((product, index) => {
+                        return {
+                            label: product.name,
+                            data: parameters.map(p => product[`norm_${p.id}`]),
+                            backgroundColor: colors[index].replace('0.7', '0.2'),
+                            borderColor: colors[index],
+                            borderWidth: 2,
+                            pointBackgroundColor: colors[index],
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: colors[index]
+                        };
+                    });
+                    
+                    radarChart.data.labels = labels;
+                    radarChart.data.datasets = datasets;
+                    radarChart.options.plugins.title.text = 'Top Products Comparison';
+                }
+                
+                radarChart.update();
+            } catch (e) {
+                console.error("Error updating radar chart:", e);
+            }
+        }
+
+        // Update bar chart
+        function updateBarChart(results, isSupplierLevel = false) {
+            try {
+                if (!barChart) return;
+                
+                if (isSupplierLevel) {
+                    // For supplier-level data
+                    const sortedResults = [...results].sort((a, b) => a.overallScore - b.overallScore);
+                    
+                    const labels = sortedResults.map(r => r.supplierName);
+                    const data = sortedResults.map(r => r.overallScore);
+                    
+                    const backgroundColors = sortedResults.map(r => {
+                        if (r.overallRank === 1) return 'rgba(40, 167, 69, 0.7)';
+                        if (r.overallRank === 2) return 'rgba(255, 193, 7, 0.7)';
+                        if (r.overallRank === 3) return 'rgba(23, 162, 184, 0.7)';
+                        return 'rgba(108, 117, 125, 0.7)';
+                    });
+                    
+                    barChart.data.labels = labels;
+                    barChart.data.datasets = [{
+                        label: 'Overall Supplier Score',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }];
+                    barChart.options.plugins.title.text = 'Overall Supplier Rankings';
+                } else {
+                    // Original product-level bar chart logic
+                    const sortedResults = [...results].sort((a, b) => a.weightedScore - b.weightedScore);
+                    
+                    const labels = sortedResults.map(r => r.name);
+                    const data = sortedResults.map(r => r.weightedScore);
+                    
+                    const backgroundColors = sortedResults.map(r => {
+                        if (r.rank === 1) return 'rgba(40, 167, 69, 0.7)';
+                        if (r.rank === 2) return 'rgba(255, 193, 7, 0.7)';
+                        if (r.rank === 3) return 'rgba(23, 162, 184, 0.7)';
+                        return 'rgba(108, 117, 125, 0.7)';
+                    });
+                    
+                    barChart.data.labels = labels;
+                    barChart.data.datasets = [{
+                        label: 'Product Score',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }];
+                    barChart.options.plugins.title.text = 'Individual Product Scores';
+                }
+                
+                barChart.update();
+            } catch (e) {
+                console.error("Error updating bar chart:", e);
+            }
+        }
+
+        // Force-push the current in-memory parameters + suppliers to Supabase
+        async function saveConfigToSupabase() {
+            try {
+                await Promise.all(parameters.map((p, i) =>
+                    sbCall(() => sb.from('parameters').update(parameterToRow(p, i)).eq('id', p.id),
+                        `Failed to save parameter "${p.name}"`)
+                ));
+                await Promise.all(suppliers.map(s => persistSupplier(s)));
+                showToast('Configuration saved to Supabase', 'success');
+            } catch (error) {
+                // individual failures already toasted by sbCall/persistSupplier
+            }
+        }
+
+        // Re-fetch parameters + suppliers from Supabase, discarding any unsaved local edits
+        async function loadConfigFromSupabase() {
+            try {
+                await loadDataFromSupabase();
+                updateParametersDisplay();
+                updateTables();
+                updateResults();
+                updateCharts();
+                showToast('Configuration loaded from Supabase', 'success');
+            } catch (error) {
+                // already toasted by sbCall
+            }
+        }
+
+        // Export to JSON
+        function exportToJSON() {
+            try {
+                const data = {
+                    parameters: parameters,
+                    suppliers: suppliers,
+                    exportedAt: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'supplier-dashboard-export.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showToast('Data exported successfully', 'success');
+            } catch (error) {
+                showToast('Error exporting data: ' + error.message, 'error');
+            }
+        }
+
+        // Import from JSON
+        function importFromJSON(event) {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                
+                reader.onload = async function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+
+                        if (!data.parameters || !data.suppliers) {
+                            throw new Error('Invalid file format');
+                        }
+
+                        const importedParameters = data.parameters;
+                        const importedSuppliers = data.suppliers;
+
+                        // Ensure customDutyPercent exists for backward compatibility
+                        importedSuppliers.forEach(supplier => {
+                            if (supplier.customDuty !== undefined && supplier.customDutyPercent === undefined) {
+                                // Convert back from duty amount to percentage
+                                if (supplier.basePrice > 0) {
+                                    supplier.customDutyPercent = (supplier.customDuty / supplier.basePrice) * 100;
+                                } else {
+                                    supplier.customDutyPercent = DEFAULT_DUTY_PERCENTAGE;
+                                }
+                            }
+                            // Ensure dailyConsumption exists for backward compatibility
+                            if (supplier.dailyConsumption === undefined) {
+                                supplier.dailyConsumption = DEFAULT_DAILY_CONSUMPTION;
+                            }
+                            // Ensure productDescription exists for backward compatibility
+                            if (supplier.productDescription === undefined) {
+                                supplier.productDescription = `Product/service description for ${supplier.name}`;
+                            }
+                            // Ensure annual planning fields exist for backward compatibility
+                            if (supplier.yearlyTarget === undefined) {
+                                supplier.yearlyTarget = DEFAULT_YEARLY_TARGET;
+                            }
+                            if (supplier.currentStockUnits === undefined) {
+                                supplier.currentStockUnits = DEFAULT_CURRENT_STOCK_UNITS;
+                            }
+                            if (supplier.safetyStock === undefined) {
+                                supplier.safetyStock = DEFAULT_SAFETY_STOCK;
+                            }
+                            if (supplier.seasonality === undefined) {
+                                supplier.seasonality = [...DEFAULT_SEASONALITY];
+                            }
+                            delete supplier.id; // let Supabase assign fresh ids
+                        });
+
+                        // Replace cloud data with the imported set
+                        await sbCall(() => sb.from('suppliers').delete().not('id', 'is', null), 'Failed to clear suppliers');
+                        await sbCall(() => sb.from('parameters').delete().not('id', 'is', null), 'Failed to clear parameters');
+                        await sbCall(() => sb.from('parameters').insert(
+                            importedParameters.map((p, i) => parameterToRow(p, i))
+                        ), 'Failed to import parameters');
+                        const supplierRows = await sbCall(() => sb.from('suppliers').insert(
+                            importedSuppliers.map(supplierToRow)
+                        ).select(), 'Failed to import suppliers');
+
+                        parameters = importedParameters;
+                        suppliers = supplierRows.map(rowToSupplier);
+
+                        updateParametersDisplay();
+                        updateTables();
+                        updateResults();
+                        updateCharts();
+
+                        showToast('Data imported successfully', 'success');
+                    } catch (error) {
+                        showToast('Error parsing file: ' + error.message, 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            } catch (error) {
+                showToast('Error importing data: ' + error.message, 'error');
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            try {
+                const normalizedSuppliers = calculateNormalizedValues(suppliers);
+                const productResults = calculateWeightedScores(normalizedSuppliers);
+                const supplierResults = calculateSupplierAggregates(productResults);
+                
+                let csv = '';
+                
+                // Add Supplier Summary Section
+                csv += 'SUPPLIER SUMMARY RANKINGS\n';
+                csv += 'Overall Rank,Supplier Name,Products Count,Total Portfolio Value,Overall Score\n';
+                
+                supplierResults.forEach(supplier => {
+                    csv += `${supplier.overallRank},"${supplier.supplierName}",${supplier.productCount},${formatNumber(supplier.totalPortfolioValue)},${formatNumber(supplier.overallScore)}\n`;
+                });
+                
+                csv += '\n\n'; // Blank lines between sections
+                
+                // Add Product Details Section
+                csv += 'INDIVIDUAL PRODUCT DETAILS\n';
+                csv += `Product Rank,Supplier-Product,Product Description,${parameters.map(p => p.id === 'price' ? 'Total Price' : p.name).join(',')},Product Score\n`;
+                
+                // Add product data rows
+                productResults.forEach(result => {
+                    let row = `${result.rank},"${result.name}","${result.productDescription || 'No description'}",`;
+                    
+                    // Add parameter values
+                    parameters.forEach(p => {
+                        let value;
+                        if (p.id === 'totalLeadTime') {
+                            value = (result.manufacturingLeadTime || 0) + 
+                                   (result.shippingLeadTime || 0) + 
+                                   (result.customClearanceLeadTime || 0);
+                        } else if (p.id === 'price') {
+                            value = (result.basePrice || 0) + 
+                                  (result.customDuty || 0) + 
+                                  (result.additionalCost || 0);
+                        } else {
+                            value = result[p.id] || 0;
+                        }
+                        row += formatNumber(value) + ',';
+                    });
+                    
+                    // Add weighted score
+                    row += formatNumber(result.weightedScore);
+                    
+                    csv += row + '\n';
+                });
+                
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+                const exportFileDefaultName = 'supplier-dashboard-complete-results.csv';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showToast('Complete results (supplier summary + product details) exported to CSV successfully', 'success');
+            } catch (error) {
+                showToast('Error exporting to CSV: ' + error.message, 'error');
+                console.error("CSV export error:", error);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            try {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.style.display = 'block';
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            } catch (e) {
+                console.error("Error showing toast:", e);
+            }
+        }
+    </script>
+</body>
+</html>
